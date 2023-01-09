@@ -1,9 +1,10 @@
 package com.example.calculator
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.calculator.databinding.ActivityMainBinding
 import com.example.calculator.enums.ViewType
 
@@ -11,10 +12,23 @@ import com.example.calculator.enums.ViewType
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding:ActivityMainBinding
-    private var firstNum = ""
-    private var secondNum = ""
-    private var isFirstNumTyped = false
-    private var operator:Operator = Operator.None
+    private var arrayListCalcHistory = ArrayList<String>()
+    private var mListAdapter = ArrayList<String>()
+    private lateinit var rvCalcHistory:RecyclerView
+    interface IOCalcHistoryListener{
+        fun listenDataChange(data:String)
+    }
+
+    private val iOCalcHistoryListener = object :IOCalcHistoryListener{
+        override fun listenDataChange(data: String) {
+            arrayListCalcHistory.add(data)
+            mListAdapter.removeAll(mListAdapter.toSet())
+            for (i in arrayListCalcHistory.indices.reversed()) {
+                mListAdapter.add(arrayListCalcHistory[i])
+            }
+            rvCalcHistory.adapter = AdapterCalcHistory(mListAdapter)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         val btnMod = binding.btnModulus
         val btnDivision = binding.btnDivision
         val btnMultiplication = binding.btnMultiplication
-        val btnSubtraction = binding.btnSubstraction
+        val btnSubtraction = binding.btnSubtraction
         val btnAddition = binding.btnAddition
         val btnNum1 = binding.btnNumber1
         val btnNum2 = binding.btnNumber2
@@ -42,6 +56,14 @@ class MainActivity : AppCompatActivity() {
         val btnNum0 = binding.btnNumber0
         val btnDot = binding.btnDot
         val tvDisplayNumbers = binding.tvDisplayNumbers
+        val adapterCalcHistory: AdapterCalcHistory
+        rvCalcHistory = binding.rvCalcHistory
+
+        rvCalcHistory.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity,LinearLayoutManager.VERTICAL,true)
+            adapterCalcHistory = AdapterCalcHistory(mListAdapter)
+            adapter = adapterCalcHistory
+        }
 
         val mapOfButtons = HashMap<ViewType,View>()
         mapOfButtons.apply {
@@ -67,215 +89,6 @@ class MainActivity : AppCompatActivity() {
             this[ViewType.Btn8] = btnNum8
             this[ViewType.Btn9] = btnNum9
         }
-
-//        btnCancel.setOnClickListener(this)
-//        btnEquals.setOnClickListener(this)
-//        btnCancelSingleText.setOnClickListener(this)
-//        btnMod.setOnClickListener(this)
-//        btnDivision.setOnClickListener(this)
-//        btnMultiplication.setOnClickListener(this)
-//        btnSubtraction.setOnClickListener(this)
-//        btnAddition.setOnClickListener(this)
-//        btnNum0.setOnClickListener(this)
-//        btnNum1.setOnClickListener(this)
-//        btnNum2.setOnClickListener(this)
-//        btnNum3.setOnClickListener(this)
-//        btnNum4.setOnClickListener(this)
-//        btnNum5.setOnClickListener(this)
-//        btnNum6.setOnClickListener(this)
-//        btnNum7.setOnClickListener(this)
-//        btnNum8.setOnClickListener(this)
-//        btnNum9.setOnClickListener(this)
-//
-
-        CustomClickListener(mapOfButtons)
-
-
-    }
-
-//    override fun onClick(view: View?) {
-//
-//        when(view){
-//            binding.btnCancelText ->{
-//                binding.tvDisplayNumbers.text = ""
-//                firstNum = ""
-//                secondNum = ""
-//                isFirstNumTyped = false
-//            }
-//            binding.btnEquals ->{
-//                val result = calculate(firstNum,secondNum,operator)
-//                binding.tvDisplayNumbers.text = result
-//                firstNum = result
-//                secondNum = ""
-//                isFirstNumTyped = false
-//                Log.i("tag","equal btn clicked")
-//            }
-//            binding.btnAddition ->{
-//                binding.tvDisplayNumbers.text = "+"
-//                isFirstNumTyped = true
-//                operator = Operator.Addition
-//            }
-//            binding.btnSubstraction ->{
-//                binding.tvDisplayNumbers.text = "-"
-//                isFirstNumTyped = true
-//                operator = Operator.Subtraction
-//            }
-//            binding.btnMultiplication ->{
-//                binding.tvDisplayNumbers.text = "*"
-//                isFirstNumTyped = true
-//                operator = Operator.Multiplication
-//            }
-//            binding.btnDivision ->{
-//                binding.tvDisplayNumbers.text = "/"
-//                isFirstNumTyped = true
-//                operator = Operator.Division
-//            }
-//            binding.btnModulus ->{
-//                binding.tvDisplayNumbers.text = "%"
-//                isFirstNumTyped = true
-//                operator = Operator.Mod
-//            }
-//
-//            binding.btnNumber1->{
-//                if (!isFirstNumTyped){
-//                    firstNum +=  "1"
-//                    binding.tvDisplayNumbers.text = firstNum
-//                }else{
-//                    secondNum += "1"
-//                    binding.tvDisplayNumbers.text = secondNum
-//                }
-//
-//            }
-//            binding.btnNumber2->{
-//                if (!isFirstNumTyped){
-//                    firstNum += "2"
-//                    binding.tvDisplayNumbers.text = firstNum
-//                }else{
-//                    secondNum += "2"
-//                    binding.tvDisplayNumbers.text = secondNum
-//                }
-//
-//            }
-//            binding.btnNumber3->{
-//                if (!isFirstNumTyped){
-//                    firstNum += "3"
-//                    binding.tvDisplayNumbers.text = firstNum
-//                }else{
-//                    secondNum += "3"
-//                    binding.tvDisplayNumbers.text = secondNum
-//                }
-//
-//            }
-//            binding.btnNumber4->{
-//                if (!isFirstNumTyped){
-//                    firstNum += "4"
-//                    binding.tvDisplayNumbers.text = firstNum
-//                }else{
-//                    secondNum +=  "4"
-//                    binding.tvDisplayNumbers.text = secondNum
-//                }
-//
-//            }
-//            binding.btnNumber5->{
-//                if (!isFirstNumTyped){
-//                    firstNum +=  "5"
-//                    binding.tvDisplayNumbers.text = firstNum
-//                }else{
-//                    secondNum += "5"
-//                    binding.tvDisplayNumbers.text = secondNum
-//                }
-//
-//            }
-//            binding.tvBtnNumber6->{
-//                if (!isFirstNumTyped){
-//                    firstNum += "6"
-//                    binding.tvDisplayNumbers.text = firstNum
-//                }else{
-//                    secondNum +=  "6"
-//                    binding.tvDisplayNumbers.text = secondNum
-//                }
-//
-//            }
-//            binding.btnNumber7->{
-//                if (!isFirstNumTyped){
-//                    firstNum +=  "7"
-//                    binding.tvDisplayNumbers.text = firstNum
-//                }else{
-//                    secondNum += "7"
-//                    binding.tvDisplayNumbers.text = secondNum
-//                }
-//
-//            }
-//            binding.btnNumber8->{
-//                if (!isFirstNumTyped){
-//                    firstNum += "8"
-//                    binding.tvDisplayNumbers.text = firstNum
-//                }else{
-//                    secondNum +=  "8"
-//                    binding.tvDisplayNumbers.text = secondNum
-//                }
-//
-//            }
-//            binding.btnNumber9->{
-//                if (!isFirstNumTyped){
-//                    firstNum +=  "9"
-//                    binding.tvDisplayNumbers.text = firstNum
-//                }else{
-//                    secondNum += "9"
-//                    binding.tvDisplayNumbers.text = secondNum
-//                }
-//
-//            }
-//            binding.btnNumber0->{
-//                if (!isFirstNumTyped){
-//                    firstNum +=  "0"
-//                    binding.tvDisplayNumbers.text = firstNum
-//                }else{
-//                    secondNum += "0"
-//                    binding.tvDisplayNumbers.text = secondNum
-//                }
-//            }
-//        }
-//
-//    }
-
-    private fun calculate(firstNumber:String,secondNumber:String,operator:Operator):String{
-        var result =""
-        try {
-            when(operator){
-                Operator.Addition->{
-                    result = (firstNumber.toInt() + secondNumber.toInt()).toString()
-                }
-                Operator.Subtraction->{
-                    result = (firstNumber.toInt() - secondNumber.toInt()).toString()
-                }
-                Operator.Multiplication->{
-                    result = (firstNumber.toInt() * secondNumber.toInt()).toString()
-                }
-                Operator.Division->{
-                    result = (firstNumber.toInt() / secondNumber.toInt()).toString()
-                }
-                Operator.None ->{
-                    Log.i("tag","No operator selected")
-                }
-                else->{
-                    result = (firstNumber.toInt().mod(  secondNumber.toInt())).toString()
-                }
-
-            }
-        }catch (e:Exception){
-            Log.e("tag","exception caught $e")
-            binding.tvDisplayNumbers.text = ""
-        }
-        return result
-    }
-
-    enum class Operator{
-        Multiplication,
-        Division,
-        Addition,
-        Subtraction,
-        Mod,
-        None
+        CustomClickListener(mapOfButtons,iOCalcHistoryListener)
     }
 }

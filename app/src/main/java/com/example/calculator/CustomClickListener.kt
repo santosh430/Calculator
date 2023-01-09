@@ -6,8 +6,12 @@ import android.widget.Button
 import android.widget.TextView
 import com.example.calculator.enums.ViewType
 import com.example.calculator.enums.Operator
+import java.util.regex.Pattern
 
-class CustomClickListener(private val hashMapOfButtons: HashMap<ViewType,View>) : View.OnClickListener {
+class CustomClickListener(
+    private val hashMapOfButtons: HashMap<ViewType, View>,
+    private val iOCalcHistoryListener: MainActivity.IOCalcHistoryListener
+) : View.OnClickListener {
 
     init {
         initClickListener()
@@ -40,6 +44,9 @@ class CustomClickListener(private val hashMapOfButtons: HashMap<ViewType,View>) 
                 val result = calculate(firstNum, secondNum, operator)
                 tvDisplayNumbers.text = result
                 firstNum = result
+                if (result.isNotEmpty()) {
+                    iOCalcHistoryListener.listenDataChange(result)
+                }
                 secondNum = ""
                 isFirstNumTyped = false
                 Log.i("tag", "equal btn clicked")
@@ -69,7 +76,15 @@ class CustomClickListener(private val hashMapOfButtons: HashMap<ViewType,View>) 
                 isFirstNumTyped = true
                 operator = Operator.Mod
             }
-
+            hashMapOfButtons[ViewType.Dot] ->{
+                if (!isFirstNumTyped) {
+                    firstNum += "."
+                    tvDisplayNumbers.text = firstNum
+                } else {
+                    secondNum += "."
+                    tvDisplayNumbers.text = secondNum
+                }
+            }
             hashMapOfButtons[ViewType.Btn1] -> {
                 if (!isFirstNumTyped) {
                     firstNum += "1"
@@ -78,7 +93,6 @@ class CustomClickListener(private val hashMapOfButtons: HashMap<ViewType,View>) 
                     secondNum += "1"
                     tvDisplayNumbers.text = secondNum
                 }
-
             }
             hashMapOfButtons[ViewType.Btn2]->{
                 if (!isFirstNumTyped){
@@ -175,21 +189,44 @@ class CustomClickListener(private val hashMapOfButtons: HashMap<ViewType,View>) 
     private fun calculate(firstNumber: String, secondNumber: String, operator: Operator): String {
         var result = ""
         try {
+            val isTypeFloat = firstNumber.contains(".") || secondNumber.contains(".")
             when (operator) {
                 Operator.Addition -> {
-                    result = (firstNumber.toInt().plus(secondNumber.toInt())).toString()
+                    result = if (isTypeFloat){
+                        (firstNumber.toFloat().plus(secondNumber.toFloat())).toString()
+                    }else {
+                        (firstNumber.toLong().plus(secondNumber.toLong())).toString()
+                    }
                 }
                 Operator.Subtraction -> {
-                    result = (firstNumber.toInt().minus(secondNumber.toInt())).toString()
+                    result = if (isTypeFloat){
+                        (firstNumber.toFloat().minus(secondNumber.toFloat())).toString()
+                    }else {
+                        (firstNumber.toLong().minus(secondNumber.toLong())).toString()
+                    }
                 }
                 Operator.Multiplication -> {
-                    result = (firstNumber.toInt().times(secondNumber.toInt())).toString()
+                    result = if (isTypeFloat){
+                        (firstNumber.toFloat().times(secondNumber.toFloat())).toString()
+                    }else {
+                        (firstNumber.toLong().times(secondNumber.toLong())).toString()
+                    }
                 }
                 Operator.Division -> {
-                    result = (firstNumber.toInt().div(secondNumber.toInt())).toString()
+                    val temp = firstNumber.toFloat().div(secondNumber.toFloat()).toString()
+
+                    result = if (isTypeFloat){
+                        (firstNumber.toFloat().div(secondNumber.toFloat())).toString()
+                    }else {
+                        (firstNumber.toLong().div(secondNumber.toLong())).toString()
+                    }
                 }
                 Operator.Mod -> {
-                    result = (firstNumber.toInt().mod(secondNumber.toInt())).toString()
+                    result = if (isTypeFloat){
+                        (firstNumber.toFloat().mod(secondNumber.toFloat())).toString()
+                    }else {
+                        (firstNumber.toLong().mod(secondNumber.toLong())).toString()
+                    }
                 }
                 else -> {
                     Log.i("tag", "No operator selected")
@@ -197,8 +234,7 @@ class CustomClickListener(private val hashMapOfButtons: HashMap<ViewType,View>) 
             }
         } catch (e: Exception) {
             Log.e("tag", "exception caught $e")
-            val tv = hashMapOfButtons[ViewType.TVDisplayNumbers] as TextView
-            tv.text = ""
+            tvDisplayNumbers.text = ""
         }
         return result
     }
