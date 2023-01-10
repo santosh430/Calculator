@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.calculator.databinding.ActivityMainBinding
+import com.example.calculator.enums.DataUpdateType
 import com.example.calculator.enums.ViewType
 
 
@@ -16,17 +17,22 @@ class MainActivity : AppCompatActivity() {
     private var mListAdapter = ArrayList<String>()
     private lateinit var rvCalcHistory:RecyclerView
     interface IOCalcHistoryListener{
-        fun listenDataChange(data:String)
+        fun listenDataChange(data:String, updateType: DataUpdateType)
     }
 
     private val iOCalcHistoryListener = object :IOCalcHistoryListener{
-        override fun listenDataChange(data: String) {
-            arrayListCalcHistory.add(data)
-            mListAdapter.removeAll(mListAdapter.toSet())
-            for (i in arrayListCalcHistory.indices.reversed()) {
-                mListAdapter.add(arrayListCalcHistory[i])
+        override fun listenDataChange(data: String, updateType: DataUpdateType) {
+            if (updateType == DataUpdateType.Insert){
+                arrayListCalcHistory.add(data)
+                mListAdapter.removeAll(mListAdapter.toSet())
+                for (i in arrayListCalcHistory.indices.reversed()) {
+                    mListAdapter.add(arrayListCalcHistory[i])
+                }
+                rvCalcHistory.adapter = AdapterCalcHistory(mListAdapter)
+            }else{
+                mListAdapter.removeAll(mListAdapter.toSet())
+                rvCalcHistory.adapter = AdapterCalcHistory(mListAdapter)
             }
-            rvCalcHistory.adapter = AdapterCalcHistory(mListAdapter)
         }
     }
 
@@ -39,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         val btnCancel = binding.btnCancelText
         val btnEquals = binding.btnEquals
         val btnCancelSingleText = binding.btnCancelSingleText
+        val btnClearData = binding.btnClearData
         val btnMod = binding.btnModulus
         val btnDivision = binding.btnDivision
         val btnMultiplication = binding.btnMultiplication
@@ -49,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         val btnNum3 = binding.btnNumber3
         val btnNum4 = binding.btnNumber4
         val btnNum5 = binding.btnNumber5
-        val btnNum6 = binding.tvBtnNumber6
+        val btnNum6 = binding.btnNumber6
         val btnNum7 = binding.btnNumber7
         val btnNum8 = binding.btnNumber8
         val btnNum9 = binding.btnNumber9
@@ -69,6 +76,7 @@ class MainActivity : AppCompatActivity() {
         mapOfButtons.apply {
             this[ViewType.Cancel] = btnCancel
             this[ViewType.CancelSingleText] = btnCancelSingleText
+            this[ViewType.ClearData] = btnClearData
             this[ViewType.Equals] = btnEquals
             this[ViewType.Addition] = btnAddition
             this[ViewType.Subtraction] = btnSubtraction

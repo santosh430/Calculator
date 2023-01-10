@@ -4,6 +4,7 @@ enum class ViewType {
     Equals,
     Cancel,
     CancelSingleText,
+    ClearData,
     Mod,
     Division,
     Multiplication,

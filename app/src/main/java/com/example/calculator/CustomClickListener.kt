@@ -4,9 +4,9 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import com.example.calculator.enums.DataUpdateType
 import com.example.calculator.enums.ViewType
 import com.example.calculator.enums.Operator
-import java.util.regex.Pattern
 
 class CustomClickListener(
     private val hashMapOfButtons: HashMap<ViewType, View>,
@@ -40,12 +40,54 @@ class CustomClickListener(
                 secondNum = ""
                 isFirstNumTyped = false
             }
+            hashMapOfButtons[ViewType.CancelSingleText]-> {
+                if(!tvDisplayNumbers.text.isNullOrEmpty()){
+                    if (isFirstNumTyped){
+                        val updatedNum = tvDisplayNumbers.text.dropLast(1)
+                        tvDisplayNumbers.text = updatedNum
+                        secondNum = updatedNum.toString()
+                    }else{
+                        val updatedNum = tvDisplayNumbers.text.dropLast(1)
+                        tvDisplayNumbers.text = updatedNum
+                        firstNum = updatedNum.toString()
+                    }
+                }
+
+            }
+            hashMapOfButtons[ViewType.ClearData]-> {
+                tvDisplayNumbers.text = ""
+                firstNum = ""
+                secondNum = ""
+                isFirstNumTyped = false
+                iOCalcHistoryListener.listenDataChange("",DataUpdateType.Delete)
+
+            }
             hashMapOfButtons[ViewType.Equals]-> {
                 val result = calculate(firstNum, secondNum, operator)
                 tvDisplayNumbers.text = result
+                val completeExpression:String
+                when(operator){
+                    Operator.Addition ->{
+                       completeExpression = "$firstNum + $secondNum = $result"
+                    }
+                    Operator.Subtraction ->{
+                        completeExpression = "$firstNum - $secondNum = $result"
+                    }
+                    Operator.Multiplication ->{
+                        completeExpression = "$firstNum × $secondNum = $result"
+                    }
+                    Operator.Division->{
+                        completeExpression = "$firstNum ÷ $secondNum = $result"
+                    }
+                    Operator.Mod->{
+                        completeExpression = "$firstNum % $secondNum = $result"
+                    }
+                    else -> completeExpression = ""
+
+                }
                 firstNum = result
                 if (result.isNotEmpty()) {
-                    iOCalcHistoryListener.listenDataChange(result)
+                    iOCalcHistoryListener.listenDataChange(completeExpression,DataUpdateType.Insert)
                 }
                 secondNum = ""
                 isFirstNumTyped = false
@@ -62,12 +104,12 @@ class CustomClickListener(
                 operator = Operator.Subtraction
             }
             hashMapOfButtons[ViewType.Multiplication] ->{
-                tvDisplayNumbers.text = "*"
+                tvDisplayNumbers.text = "×"
                 isFirstNumTyped = true
                 operator = Operator.Multiplication
             }
             hashMapOfButtons[ViewType.Division] ->{
-                tvDisplayNumbers.text = "/"
+                tvDisplayNumbers.text = "÷"
                 isFirstNumTyped = true
                 operator = Operator.Division
             }

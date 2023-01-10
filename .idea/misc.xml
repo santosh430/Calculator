@@ -3,9 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/santo/AndroidStudioProjects/Calculator/app/src/main/res/drawable/btn_background.xml" value="0.143" />
         <entry key="..\:/Users/santo/AndroidStudioProjects/Calculator/app/src/main/res/drawable/ic_baseline_keyboard_backspace_24.xml" value="0.1" />
         <entry key="..\:/Users/santo/AndroidStudioProjects/Calculator/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/Users/santo/AndroidStudioProjects/Calculator/app/src/main/res/layout/item_calc_history.xml" value="0.25" />
+        <entry key="..\:/Users/santo/AndroidStudioProjects/Calculator/app/src/main/res/layout/tablelayout.xml" value="0.25" />
       </map>
     </option>
   </component>
