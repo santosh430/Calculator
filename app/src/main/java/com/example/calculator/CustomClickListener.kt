@@ -20,6 +20,7 @@ class CustomClickListener(
     private var firstNum = ""
     private var secondNum = ""
     private var isFirstNumTyped = false
+    private var displayText = ""
     private var operator: Operator = Operator.None
     private val tvDisplayNumbers = hashMapOfButtons[ViewType.TVDisplayNumbers] as TextView
 
@@ -35,6 +36,7 @@ class CustomClickListener(
 
         when (view) {
             hashMapOfButtons[ViewType.Cancel]-> {
+                displayText = ""
                 tvDisplayNumbers.text = ""
                 firstNum = ""
                 secondNum = ""
@@ -42,188 +44,247 @@ class CustomClickListener(
             }
             hashMapOfButtons[ViewType.CancelSingleText]-> {
                 if(!tvDisplayNumbers.text.isNullOrEmpty()){
+                    displayText = tvDisplayNumbers.text.dropLast(1).toString()
+                    tvDisplayNumbers.text = displayText
                     if (isFirstNumTyped){
-                        val updatedNum = tvDisplayNumbers.text.dropLast(1)
-                        tvDisplayNumbers.text = updatedNum
-                        secondNum = updatedNum.toString()
+                        secondNum = displayText
                     }else{
-                        val updatedNum = tvDisplayNumbers.text.dropLast(1)
-                        tvDisplayNumbers.text = updatedNum
-                        firstNum = updatedNum.toString()
+                        firstNum = displayText
                     }
                 }
 
             }
             hashMapOfButtons[ViewType.ClearData]-> {
+                displayText = ""
                 tvDisplayNumbers.text = ""
                 firstNum = ""
                 secondNum = ""
                 isFirstNumTyped = false
-                iOCalcHistoryListener.listenDataChange("",DataUpdateType.Delete)
+                iOCalcHistoryListener.listenDataChange(displayText,DataUpdateType.Delete)
 
             }
             hashMapOfButtons[ViewType.Equals]-> {
-                val result = calculate(firstNum, secondNum, operator)
-                tvDisplayNumbers.text = result
-                val completeExpression:String
-                when(operator){
-                    Operator.Addition ->{
-                       completeExpression = "$firstNum + $secondNum = $result"
-                    }
-                    Operator.Subtraction ->{
-                        completeExpression = "$firstNum - $secondNum = $result"
-                    }
-                    Operator.Multiplication ->{
-                        completeExpression = "$firstNum × $secondNum = $result"
-                    }
-                    Operator.Division->{
-                        completeExpression = "$firstNum ÷ $secondNum = $result"
-                    }
-                    Operator.Mod->{
-                        completeExpression = "$firstNum % $secondNum = $result"
-                    }
-                    else -> completeExpression = ""
-
-                }
-                firstNum = result
+//                val result = calculate(firstNum, secondNum, operator)
+                var finalCalcValue =""
+                val result = EvaluateString.evaluate(displayText)
                 if (result.isNotEmpty()) {
-                    iOCalcHistoryListener.listenDataChange(completeExpression,DataUpdateType.Insert)
-                }
+                    var isIntType = true
+                    val subString = result.substringAfter(".")
+                    subString.forEach {
+                        for (i in 1..9){
+                            val str = i.toString()
+                            if (it.toString() == str){
+                                isIntType = false
+                            }
+                        }
+                    }
+                    if (isIntType){
+//                        result.removeSuffix(".")
+                        for (i in result){
+                            if (i == '.'){
+                                break
+                            }else{
+                                finalCalcValue+=i.toString()
+                            }
+                        }
+                    }else finalCalcValue = result
+                    iOCalcHistoryListener.listenDataChange("$displayText=$finalCalcValue",DataUpdateType.Insert)
+                }else return
+
+                displayText = finalCalcValue
+
+//                when(operator){
+//                    Operator.Addition ->{
+//                       displayText = "$displayText = $result"
+//                    }
+//                    Operator.Subtraction ->{
+//                        displayText = "$displayText = $result"
+//                    }
+//                    Operator.Multiplication ->{
+//                        displayText = "$displayText = $result"
+//                    }
+//                    Operator.Division->{
+//                        displayText = "$displayText = $result"
+//                    }
+//                    Operator.Mod->{
+//                        displayText = "$displayText = $result"
+//                    }
+//                    else -> displayText = ""
+//
+//                }
+                tvDisplayNumbers.text = displayText
+                firstNum = result
+
                 secondNum = ""
                 isFirstNumTyped = false
                 Log.i("tag", "equal btn clicked")
             }
             hashMapOfButtons[ViewType.Addition] -> {
-                tvDisplayNumbers.text = "+"
+                displayText += "+"
+                tvDisplayNumbers.text = displayText
                 isFirstNumTyped = true
                 operator = Operator.Addition
             }
             hashMapOfButtons[ViewType.Subtraction] ->{
-                tvDisplayNumbers.text = "-"
+                displayText += "-"
+                tvDisplayNumbers.text = displayText
                 isFirstNumTyped = true
                 operator = Operator.Subtraction
             }
             hashMapOfButtons[ViewType.Multiplication] ->{
-                tvDisplayNumbers.text = "×"
+                displayText += "×"
+                tvDisplayNumbers.text = displayText
                 isFirstNumTyped = true
                 operator = Operator.Multiplication
             }
             hashMapOfButtons[ViewType.Division] ->{
-                tvDisplayNumbers.text = "÷"
+                displayText += "÷"
+                tvDisplayNumbers.text = displayText
                 isFirstNumTyped = true
                 operator = Operator.Division
             }
             hashMapOfButtons[ViewType.Mod] ->{
-                tvDisplayNumbers.text = "%"
+                displayText += "%"
+                tvDisplayNumbers.text = displayText
                 isFirstNumTyped = true
                 operator = Operator.Mod
             }
             hashMapOfButtons[ViewType.Dot] ->{
-                if (!isFirstNumTyped) {
-                    firstNum += "."
-                    tvDisplayNumbers.text = firstNum
-                } else {
-                    secondNum += "."
-                    tvDisplayNumbers.text = secondNum
-                }
+//                if (!isFirstNumTyped) {
+//                    firstNum += "."
+//                    displayText += "."
+//                    tvDisplayNumbers.text = displayText
+//                } else {
+//                    displayText += "."
+//                    secondNum += "."
+//                    tvDisplayNumbers.text = displayText
+//                }
+
+                displayText += ".".trim()
+                tvDisplayNumbers.text = displayText
             }
             hashMapOfButtons[ViewType.Btn1] -> {
-                if (!isFirstNumTyped) {
-                    firstNum += "1"
-                    tvDisplayNumbers.text = firstNum
-                } else {
-                    secondNum += "1"
-                    tvDisplayNumbers.text = secondNum
-                }
+//                if (!isFirstNumTyped) {
+//                    displayText += "1".trim()
+//                    firstNum += "1"
+//                    tvDisplayNumbers.text = displayText
+//                } else {
+//                    displayText += "1".trim()
+//                    secondNum += "1"
+//                    tvDisplayNumbers.text = displayText
+//                }
+
+                displayText += "1".trim()
+                tvDisplayNumbers.text = displayText
             }
             hashMapOfButtons[ViewType.Btn2]->{
-                if (!isFirstNumTyped){
-                    firstNum += "2"
-                    tvDisplayNumbers.text = firstNum
-                }else{
-                    secondNum += "2"
-                    tvDisplayNumbers.text = secondNum
-                }
+//                if (!isFirstNumTyped){
+//                    displayText += "2".trim()
+//                    firstNum += "2"
+//                    tvDisplayNumbers.text = displayText
+//                }else{
+//                    displayText += "2".trim()
+//                    secondNum += "2"
+//                    tvDisplayNumbers.text = displayText
+//                }
+                displayText += "2".trim()
+                tvDisplayNumbers.text = displayText
 
             }
             hashMapOfButtons[ViewType.Btn3]->{
-                if (!isFirstNumTyped){
-                    firstNum += "3"
-                    tvDisplayNumbers.text = firstNum
-                }else{
-                    secondNum += "3"
-                    tvDisplayNumbers.text = secondNum
-                }
+//                if (!isFirstNumTyped){
+//                    displayText += "3".trim()
+//                    firstNum += "3"
+//                }else{
+//                    displayText += "3".trim()
+//                    secondNum += "3"
+//                }
+
+                displayText += "3".trim()
+                tvDisplayNumbers.text = displayText
 
             }
             hashMapOfButtons[ViewType.Btn4]->{
-                if (!isFirstNumTyped){
-                    firstNum += "4"
-                    tvDisplayNumbers.text = firstNum
-                }else{
-                    secondNum +=  "4"
-                    tvDisplayNumbers.text = secondNum
-                }
+//                if (!isFirstNumTyped){
+//                    firstNum += "4"
+//                    tvDisplayNumbers.text = firstNum
+//                }else{
+//                    secondNum +=  "4"
+//                    tvDisplayNumbers.text = secondNum
+//                }
+                displayText += "4".trim()
+                tvDisplayNumbers.text = displayText
 
             }
             hashMapOfButtons[ViewType.Btn5]->{
-                if (!isFirstNumTyped){
-                    firstNum +=  "5"
-                    tvDisplayNumbers.text = firstNum
-                }else{
-                    secondNum += "5"
-                    tvDisplayNumbers.text = secondNum
-                }
+//                if (!isFirstNumTyped){
+//                    firstNum +=  "5"
+//                    tvDisplayNumbers.text = firstNum
+//                }else{
+//                    secondNum += "5"
+//                    tvDisplayNumbers.text = secondNum
+//                }
+                displayText += "5".trim()
+                tvDisplayNumbers.text = displayText
 
             }
             hashMapOfButtons[ViewType.Btn6]->{
-                if (!isFirstNumTyped){
-                    firstNum += "6"
-                    tvDisplayNumbers.text = firstNum
-                }else{
-                    secondNum +=  "6"
-                    tvDisplayNumbers.text = secondNum
-                }
+//                if (!isFirstNumTyped){
+//                    firstNum += "6"
+//                    tvDisplayNumbers.text = firstNum
+//                }else{
+//                    secondNum +=  "6"
+//                    tvDisplayNumbers.text = secondNum
+//                }
+                displayText += "6".trim()
+                tvDisplayNumbers.text = displayText
 
             }
             hashMapOfButtons[ViewType.Btn7]->{
-                if (!isFirstNumTyped){
-                    firstNum +=  "7"
-                    tvDisplayNumbers.text = firstNum
-                }else{
-                    secondNum += "7"
-                    tvDisplayNumbers.text = secondNum
-                }
+//                if (!isFirstNumTyped){
+//                    firstNum +=  "7"
+//                    tvDisplayNumbers.text = firstNum
+//                }else{
+//                    secondNum += "7"
+//                    tvDisplayNumbers.text = secondNum
+//                }
+                displayText += "7".trim()
+                tvDisplayNumbers.text = displayText
 
             }
             hashMapOfButtons[ViewType.Btn8]->{
-                if (!isFirstNumTyped){
-                    firstNum += "8"
-                    tvDisplayNumbers.text = firstNum
-                }else{
-                    secondNum +=  "8"
-                   tvDisplayNumbers.text = secondNum
-                }
-
+//                if (!isFirstNumTyped){
+//                    firstNum += "8"
+//                    tvDisplayNumbers.text = firstNum
+//                }else{
+//                    secondNum +=  "8"
+//                   tvDisplayNumbers.text = secondNum
+//                }
+                displayText += "8".trim()
+                tvDisplayNumbers.text = displayText
             }
             hashMapOfButtons[ViewType.Btn9]->{
-                if (!isFirstNumTyped){
-                    firstNum +=  "9"
-                    tvDisplayNumbers.text = firstNum
-                }else{
-                    secondNum += "9"
-                   tvDisplayNumbers.text = secondNum
-                }
+//                if (!isFirstNumTyped){
+//                    firstNum +=  "9"
+//                    tvDisplayNumbers.text = firstNum
+//                }else{
+//                    secondNum += "9"
+//                   tvDisplayNumbers.text = secondNum
+//                }
+                displayText += "9".trim()
+                tvDisplayNumbers.text = displayText
 
             }
             hashMapOfButtons[ViewType.Btn0] -> {
-                if (!isFirstNumTyped) {
-                    firstNum += "0"
-                    tvDisplayNumbers.text = firstNum
-                } else {
-                    secondNum += "0"
-                    tvDisplayNumbers.text = secondNum
-                }
+//                if (!isFirstNumTyped) {
+//                    firstNum += "0"
+//                    tvDisplayNumbers.text = firstNum
+//                } else {
+//                    secondNum += "0"
+//                    tvDisplayNumbers.text = secondNum
+//                }
+                displayText += "0".trim()
+                tvDisplayNumbers.text = displayText
             }
         }
     }
