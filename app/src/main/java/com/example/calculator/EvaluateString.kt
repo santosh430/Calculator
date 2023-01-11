@@ -32,7 +32,9 @@ object EvaluateString {
                     stringBuffer.append(tokens[i++])
                 }
                 values.push(stringBuffer.toString().toDouble())
-            } else if (tokens[i] == '(') ops.push(tokens[i]) else if (tokens[i] == ')') {
+            }
+            else if (tokens[i] == '(') ops.push(tokens[i++])
+            else if (tokens[i] == ')') {
                 while (ops.peek() != '(') values.push(
                     applyOp(
                         ops.pop(),
@@ -42,7 +44,8 @@ object EvaluateString {
                 )
                 ops.pop()
                 i++
-            } else if (tokens[i] == '+' || tokens[i] == '-' || tokens[i] == '×' || tokens[i] == '÷' || tokens[i] == '%') {
+            }
+            else if (tokens[i] == '+' || tokens[i] == '-' || tokens[i] == '×' || tokens[i] == '÷' || tokens[i] == '%') {
                 // While top of 'ops' has same or greater precedence to current
                 // token, which is an operator. Apply operator on top of 'ops'
                 // to top two elements in values stack
@@ -55,8 +58,9 @@ object EvaluateString {
                 // Push current token to 'ops'.
                 ops.push(tokens[i])
                 i++
-            } else if (tokens[i] == '.'){
-
+            }
+            else if (tokens[i] == '.'){
+                return ""
             }
 
         }
@@ -89,7 +93,35 @@ object EvaluateString {
             when (op) {
                 '+' -> result = a + b
                 '-' -> result = a - b
-                '×' -> result = a * b
+                '×' -> {
+                    var isIntType = true
+                    val subStringA = a.toString().substringAfter(".")
+                    val subStringB = b.toString().substringAfter(".")
+                    subStringA.forEach {
+                        for (i in 1..9){
+                            val str = i.toString()
+                            if (it.toString() == str){
+                                isIntType = false
+                            }
+                        }
+                    }
+                    subStringB.forEach {
+                        for (i in 1..9){
+                            val str = i.toString()
+                            if (it.toString() == str){
+                                isIntType = false
+                            }
+                        }
+                    }
+
+                    result = if (isIntType){
+                        val x = a.toString().substringBefore('.').toInt()
+                        val y = b.toString().substringBefore('.').toInt()
+                        x*y.toDouble()
+                    }else {
+                        a*b
+                    }
+                }
                 '÷' -> {
                     result = a / b
                 }
@@ -104,12 +136,4 @@ object EvaluateString {
         return result
     }
 
-    // Driver method to test above methods
-    @JvmStatic
-    fun main(args: Array<String>) {
-        println(evaluate("10 + 2 × 6"))
-        println(evaluate("100 × 2 + 12"))
-        println(evaluate("100 × ( 2 + 12 )"))
-        println(evaluate("100 × ( 2 + 12 ) ÷ 14"))
-    }
 }

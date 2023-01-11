@@ -21,5 +21,5 @@ enum class ViewType {
     Btn8,
     Btn9,
     TVDisplayNumbers,
-    Dot
+    Brackets
 }

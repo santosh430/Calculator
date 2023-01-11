@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         val btnNum8 = binding.btnNumber8
         val btnNum9 = binding.btnNumber9
         val btnNum0 = binding.btnNumber0
-        val btnDot = binding.btnDot
+        val btnBrackets = binding.btnBrackets
         val tvDisplayNumbers = binding.tvDisplayNumbers
         val adapterCalcHistory: AdapterCalcHistory
         rvCalcHistory = binding.rvCalcHistory
@@ -83,9 +83,9 @@ class MainActivity : AppCompatActivity() {
             this[ViewType.Multiplication] = btnMultiplication
             this[ViewType.Division] = btnDivision
             this[ViewType.Mod] = btnMod
-            this[ViewType.Dot] = btnDot
+            this[ViewType.Brackets] = btnBrackets
             this[ViewType.TVDisplayNumbers] = tvDisplayNumbers
-            this[ViewType.Dot] = btnDot
+            this[ViewType.Brackets] = btnBrackets
             this[ViewType.Btn0] = btnNum0
             this[ViewType.Btn1] = btnNum1
             this[ViewType.Btn2] = btnNum2
