@@ -28,11 +28,10 @@ class MainActivity : AppCompatActivity() {
                 for (i in arrayListCalcHistory.indices.reversed()) {
                     mListAdapter.add(arrayListCalcHistory[i])
                 }
-                rvCalcHistory.adapter = AdapterCalcHistory(mListAdapter)
             }else{
                 mListAdapter.removeAll(mListAdapter.toSet())
-                rvCalcHistory.adapter = AdapterCalcHistory(mListAdapter)
             }
+            rvCalcHistory.adapter = AdapterCalcHistory(mListAdapter)
         }
     }
 
@@ -97,6 +96,6 @@ class MainActivity : AppCompatActivity() {
             this[ViewType.Btn8] = btnNum8
             this[ViewType.Btn9] = btnNum9
         }
-        CustomClickListener(mapOfButtons,iOCalcHistoryListener)
+        CustomClickListener(this@MainActivity,mapOfButtons,iOCalcHistoryListener)
     }
 }

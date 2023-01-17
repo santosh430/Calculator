@@ -1,15 +1,16 @@
 package com.example.calculator
 
-import android.util.Log
+import android.content.Context
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import com.example.calculator.enums.DataUpdateType
 import com.example.calculator.enums.ViewType
-import com.example.calculator.enums.Operator
 import java.math.BigDecimal
 
 class CustomClickListener(
+    private val context: Context,
     private val hashMapOfButtons: HashMap<ViewType, View>,
     private val iOCalcHistoryListener: MainActivity.IOCalcHistoryListener
 ) : View.OnClickListener {
@@ -51,28 +52,33 @@ class CustomClickListener(
 
             }
             hashMapOfButtons[ViewType.Equals]-> {
-                var finalCalcValue =""
-                val result = EvaluateString.evaluate(displayText)
+                val finalCalcValue: String
+                var result = ""
+                if (!displayText.contains('.') && displayText.isNotEmpty()) {
+                    result = EvaluateString.evaluate(displayText)
+                }
                 if (result.isNotEmpty()) {
                     var isIntType = true
-                    val subString = result.substringAfter(".")
-                    subString.forEach {
-                        for (i in 1..9){
-                            val str = i.toString()
-                            if (it.toString() == str){
-                                isIntType = false
+                    val bigDecimal = BigDecimal(result).toString()
+                    if (bigDecimal.contains('.')) {
+                        val subString = bigDecimal.substringAfter(".")
+                        subString.forEach {
+                            for (i in 1..9) {
+                                val str = i.toString()
+                                if (it.toString() == str) {
+                                    isIntType = false
+                                }
                             }
                         }
                     }
-
-                    val num:Int = result.substringBefore('.').toInt()
-                    num.toString()
-
                     finalCalcValue = if (isIntType){
                         BigDecimal(result).toBigInteger().toString()
                     }else BigDecimal(result).toString()
                     iOCalcHistoryListener.listenDataChange("$displayText=$finalCalcValue",DataUpdateType.Insert)
-                }else return
+                }else {
+                    Toast.makeText(context, "Can't operate on decimal values", Toast.LENGTH_LONG).show()
+                    return
+                }
 
                 displayText = finalCalcValue
                 tvDisplayNumbers.text = displayText
